@@ -16,3 +16,4 @@ logs/
 # IDEs
 .idea/
 .vscode/
+.pytest_cache/

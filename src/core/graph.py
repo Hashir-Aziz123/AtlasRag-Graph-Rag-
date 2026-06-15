@@ -1,5 +1,5 @@
 import os
-from neo4j import GraphDatabase, Driver
+from neo4j import AsyncGraphDatabase, AsyncDriver
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,21 +12,21 @@ if not NEO4J_PASSWORD:
     raise ValueError("NEO4J_PASSWORD environment variable is missing.")
 
 class GraphDBDriver:
-    _driver: Driver = None
+    _driver: AsyncDriver = None
 
     @classmethod
-    def get_driver(cls) -> Driver:
+    def get_driver(cls) -> AsyncDriver:
         if cls._driver is None:
-            cls._driver = GraphDatabase.driver(
+            cls._driver = AsyncGraphDatabase.driver(
                 NEO4J_URI, 
                 auth=(NEO4J_USER, NEO4J_PASSWORD)
             )
         return cls._driver
 
     @classmethod
-    def close_driver(cls):
+    async def close_driver(cls):
         if cls._driver is not None:
-            cls._driver.close()
+            await cls._driver.close()
             cls._driver = None
 
 # Singleton driver instance export
