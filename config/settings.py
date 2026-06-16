@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     EMBEDDING_DIMENSION: int = 384
     EMBEDDING_MODEL_NAME: str = "BAAI/bge-small-en-v1.5"
 
+    # Retrieval Settings
+    GRAPH_RETURN_LIMIT: int = 15
+    VECTOR_RETURN_LIMIT: int = 4
+
 
     # Application Paths
     ROOT_DIR: Path = BASE_DIR
