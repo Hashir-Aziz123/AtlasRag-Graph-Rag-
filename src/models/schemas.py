@@ -1,5 +1,10 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
+from enum import Enum
+
+# ==========================================
+# INGESTION SCHEMAS (Document -> Database)
+# ==========================================
 
 class Entity(BaseModel):
     """A node in the Knowledge Graph."""
@@ -30,3 +35,25 @@ class GraphExtraction(BaseModel):
     """The root schema passed to the LLM for structured JSON generation."""
     entities: List[Entity] = Field(description="List of all unique entities found in the text chunk.")
     relationships: List[Relationship] = Field(description="List of all logical connections between the entities.")
+
+
+# ==========================================
+# RETRIEVAL SCHEMAS (User Chat -> Database)
+# ==========================================
+
+class RouteCategory(str, Enum):
+    """Strictly enforced routing categories to map to Cypher templates."""
+    ACQUISITIONS = "acquisitions"
+    PRODUCTS = "products"
+    COMPETITORS = "competitors"
+    GENERAL = "general"
+
+class ParsedQuery(BaseModel):
+    """The structured output required from the LLM routing engine."""
+    intent: RouteCategory = Field(
+        description="The core intent of the user's question."
+    )
+    entities: list[str] = Field(
+        default_factory=list,
+        description="Specific companies, products, or technologies mentioned. Capitalize canonical names (e.g., NVIDIA, Mellanox)."
+    )
