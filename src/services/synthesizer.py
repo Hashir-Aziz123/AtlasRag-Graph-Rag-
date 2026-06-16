@@ -8,7 +8,7 @@ groq_client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
 
 async def generate_response(original_query: str, context: str) -> str:
     """
-    Takes the raw database context and the user's question, 
+    Takes the raw Hybrid RAG context and the user's question, 
     and synthesizes a final, human-readable answer.
     """
     system_prompt = """
@@ -29,7 +29,6 @@ async def generate_response(original_query: str, context: str) -> str:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ],
-        # Low temperature forces the model to be factual and stick to the context
         temperature=0.2 
     )
 
