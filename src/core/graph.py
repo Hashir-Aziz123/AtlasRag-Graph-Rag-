@@ -29,5 +29,4 @@ class GraphDBDriver:
             await cls._driver.close()
             cls._driver = None
 
-# Singleton driver instance export
 neo4j_driver = GraphDBDriver.get_driver()

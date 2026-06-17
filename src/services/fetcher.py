@@ -13,7 +13,6 @@ async def fetch_from_graph(intent: RouteCategory, entities: list[str]) -> str:
     async with neo4j_driver.session() as session:
         # --- Multi-Entity Pathing ---
         if len(entities) >= 2:
-            # We append '~' to enable Lucene fuzzy matching (typo tolerance)
             query = """
                 CALL db.index.fulltext.queryNodes("entity_names", $e1) YIELD node AS source
                 CALL db.index.fulltext.queryNodes("entity_names", $e2) YIELD node AS target
@@ -34,8 +33,8 @@ async def fetch_from_graph(intent: RouteCategory, entities: list[str]) -> str:
             formatted = [f"- Path: {' -> '.join(rec['Path'])} (Relations: {', '.join(rec['Relationships'])})" for rec in records]
             return "GRAPH TOPOLOGY (MULTI-ENTITY):\n" + "\n".join(formatted)
 
-        # --- Single-Entity Templates ---
-        # Fuzzy match the primary entity against the Lucene index
+
+        # Fuzzy matched the primary entity against the Lucene index
         primary_entity = f"{entities[0]}~"
         
         queries = {
@@ -93,15 +92,12 @@ async def fetch_context(parsed_query: ParsedQuery, original_query: str) -> str:
     Executes Hybrid RAG via asyncio.gather(). 
     Fires off graph and vector queries simultaneously, then fuses the results.
     """
-    # We always want the vector context to capture the nuance
     tasks = [fetch_from_vector(original_query)]
     
-    # If the LLM router gave us a specific intent and entities, we fire off the Graph query too
     has_graph_intent = parsed_query.intent != RouteCategory.GENERAL and parsed_query.entities
     if has_graph_intent:
         tasks.append(fetch_from_graph(parsed_query.intent, parsed_query.entities))
         
-    # Execute all database calls concurrently
     results = await asyncio.gather(*tasks)
     
     vector_context = results[0]

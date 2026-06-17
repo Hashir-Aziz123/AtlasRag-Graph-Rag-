@@ -17,7 +17,6 @@ def extract_text_from_pdf(file_path: str, start_page: int = 0, end_page: int = N
     full_text = []
     total_pages = len(doc)
     
-    # Safely compute boundaries to prevent index errors
     safe_start = max(0, start_page)
     safe_end = min(end_page, total_pages) if end_page is not None else total_pages
     

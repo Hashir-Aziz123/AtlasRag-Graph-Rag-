@@ -9,10 +9,8 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is missing.")
 
-# Create the async engine. Echo=False stops SQL statement logging in production.
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 
-# Session factory for generating ephemeral database sessions per request
 async_session_maker = async_sessionmaker(
     engine, 
     class_=AsyncSession, 

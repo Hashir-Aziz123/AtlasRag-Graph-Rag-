@@ -2,10 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from enum import Enum
 
-# ==========================================
 # INGESTION SCHEMAS (Document -> Database)
-# ==========================================
-
 class Entity(BaseModel):
     """A node in the Knowledge Graph."""
     name: str = Field(
@@ -36,11 +33,7 @@ class GraphExtraction(BaseModel):
     entities: List[Entity] = Field(description="List of all unique entities found in the text chunk.")
     relationships: List[Relationship] = Field(description="List of all logical connections between the entities.")
 
-
-# ==========================================
 # RETRIEVAL SCHEMAS (User Chat -> Database)
-# ==========================================
-
 class RouteCategory(str, Enum):
     """Strictly enforced routing categories to map to Cypher templates."""
     ACQUISITIONS = "acquisitions"

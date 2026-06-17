@@ -46,5 +46,4 @@ async def dump_graph_to_text():
     print(f"[✔] Graph dump complete. Open '{output_file}' to view your data.")
 
 if __name__ == "__main__":
-    # Ensure the script runs using the asyncio event loop
     asyncio.run(dump_graph_to_text())

@@ -5,13 +5,12 @@ from src.services.synthesizer import generate_response
 
 async def ask_graphrag(user_query: str):
     print(f"\n[*] Question: '{user_query}'")
-    
-    # Step 1: Route the intent
+
     print("    -> Routing query...")
     parsed_query = await route_user_query(user_query)
     print(f"       Intent: {parsed_query.intent.value} | Entities: {parsed_query.entities}")
     
-    # Step 2: Fetch the context
+
     print("    -> Fetching context (Hybrid RAG)...")
     raw_context = await fetch_context(parsed_query, user_query)
     
@@ -19,7 +18,6 @@ async def ask_graphrag(user_query: str):
         print("\n[!] Answer: No data found in the current ingestion slice.")
         return
         
-    # Step 3: Synthesize the final answer
     print("    -> Synthesizing answer...")
     final_answer = await generate_response(user_query, raw_context)
     

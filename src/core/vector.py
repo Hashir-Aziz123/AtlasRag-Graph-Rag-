@@ -17,5 +17,5 @@ class VectorDBClient:
             cls._client = AsyncQdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
         return cls._client
 
-# Singleton client instance export
+
 qdrant_client = VectorDBClient.get_client()
