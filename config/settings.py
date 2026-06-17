@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     QDRANT_PORT: int = 6333
     QDRANT_COLLECTION_NAME: str = "corporate_10k_chunks"
 
+    # Redis & Celery Settings
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_URL: str = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+
     # The dimension of the FastEmbed 'BAAI/bge-small-en-v1.5' model
     EMBEDDING_DIMENSION: int = 384
     EMBEDDING_MODEL_NAME: str = "BAAI/bge-small-en-v1.5"
