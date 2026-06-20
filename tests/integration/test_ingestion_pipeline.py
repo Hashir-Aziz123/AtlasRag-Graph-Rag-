@@ -2,12 +2,12 @@ import asyncio
 from dotenv import load_dotenv
 
 from config.settings import settings
-from src.services.parser import extract_text_from_pdf
-from src.services.chunker import chunk_document
-from src.services.extractor import extract_graph_entities
-from src.services.generator import write_to_neo4j
-from src.services.embedder import generate_embedding
-from src.services.vector_store import init_qdrant_collection, write_to_qdrant
+from src.services.ingestion.parser import extract_text_from_pdf
+from src.services.ingestion.chunker import chunk_document
+from src.services.ingestion.extractor import extract_graph_entities
+from src.services.ingestion.graph_writer import write_to_neo4j
+from src.core.embedder import generate_embedding
+from src.core.vector_store import init_qdrant_collection, write_to_qdrant
 
 load_dotenv()
 

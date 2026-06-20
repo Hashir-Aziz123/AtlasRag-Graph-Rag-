@@ -3,7 +3,7 @@ import time
 import requests
 
 from qdrant_client.models import Filter, FieldCondition, Range
-from src.services.cache_manager import (
+from src.core.cache_manager import (
     generate_query_hash,
     generate_deterministic_uuid,
     redis_session,

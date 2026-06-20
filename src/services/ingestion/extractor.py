@@ -39,8 +39,8 @@ async def extract_graph_entities(text_chunk: str) -> GraphExtraction:
     return extracted_data
 
 
-    from src.services.parser import extract_text_from_pdf
-    from src.services.chunker import chunk_document
+    from src.services.ingestion.parser import extract_text_from_pdf
+    from src.services.ingestion.chunker import chunk_document
     
     async def run_test():
         target_pdf = settings.RAW_DATA_DIR / "sample.pdf"

@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.v1.routers import ingestion, retrieval
-from src.services.cache_manager import init_cache_index
+from src.core.cache_manager import init_cache_index
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

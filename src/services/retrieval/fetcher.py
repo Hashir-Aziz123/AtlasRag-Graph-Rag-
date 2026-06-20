@@ -2,7 +2,7 @@ import asyncio
 import re
 from src.core.graph import neo4j_driver
 from src.core.vector import qdrant_client
-from src.services.embedder import generate_embedding
+from src.core.embedder import generate_embedding
 from src.models.schemas import ParsedQuery, RouteCategory
 from config.settings import settings
 

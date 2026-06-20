@@ -8,7 +8,7 @@ from qdrant_client.models import Distance, VectorParams, PointStruct
 
 from config.settings import settings
 from src.core.vector import qdrant_client
-from src.services.embedder import generate_embedding
+from src.core.embedder import generate_embedding
 
 redis_session = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
 

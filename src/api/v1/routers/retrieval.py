@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
 
 from src.models.api_schemas import QueryRequest, QueryResponse
-from src.services.router import route_user_query
-from src.services.fetcher import fetch_context
-from src.services.synthesizer import generate_response
-from src.services.cache_manager import get_cached_response, set_cached_response
+from src.services.retrieval.router import route_user_query
+from src.services.retrieval.fetcher import fetch_context
+from src.services.retrieval.synthesizer import generate_response
+from src.core.cache_manager import get_cached_response, set_cached_response
 
 router = APIRouter()
 

@@ -1,7 +1,7 @@
 import asyncio
-from src.services.router import route_user_query
-from src.services.fetcher import fetch_context
-from src.services.synthesizer import generate_response
+from src.services.retrieval.router import route_user_query
+from src.services.retrieval.fetcher import fetch_context
+from src.services.retrieval.synthesizer import generate_response
 
 async def ask_graphrag(user_query: str):
     print(f"\n[*] Question: '{user_query}'")
