@@ -1,6 +1,7 @@
 import asyncio
 import os
 from pathlib import Path
+import time
 
 from src.workers.workers import celery_app
 from src.services.parser import extract_text_from_pdf
@@ -9,6 +10,9 @@ from src.services.extractor import extract_graph_entities
 from src.services.generator import write_to_neo4j
 from src.services.embedder import generate_embedding
 from src.services.vector_store import init_qdrant_collection, write_to_qdrant
+
+from src.core.vector import qdrant_client
+from qdrant_client.models import Filter, FieldCondition, Range
 
 async def async_ingestion_pipeline(file_path: str, start_page: int = 0, end_page: int = None):
     """The core async logic pulled from our integration tests."""
@@ -59,3 +63,30 @@ def process_pdf_task(self, file_path: str, start_page: int = 0, end_page: int = 
         return {"status": "success", "message": result}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+    
+
+async def async_sweep_vectors():
+    """Background task to bulk-delete expired vectors from Qdrant."""
+    current_time = int(time.time())
+    print(f"[*] Sweeping Qdrant cache for vectors expired before Unix Timestamp: {current_time}")
+    
+    try:
+        await qdrant_client.delete(
+            collection_name="semantic_cache",
+            points_selector=Filter(
+                must=[
+                    FieldCondition(
+                        key="expires_at",
+                        range=Range(lt=current_time) 
+                    )
+                ]
+            )
+        )
+        print("      Graveyard successfully purged.")
+    except Exception as e:
+        print(f"      Failed to sweep Qdrant cache: {e}")
+
+@celery_app.task(name="sweep_orphaned_vectors")
+def sweep_orphaned_vectors_task():
+    """Synchronous Celery wrapper for the sweeper."""
+    asyncio.run(async_sweep_vectors())

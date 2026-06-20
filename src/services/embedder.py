@@ -1,7 +1,7 @@
 from fastembed import TextEmbedding
 from config.settings import settings
 
-embedding_model = TextEmbedding(model_name=settings.EMBEDDING_MODEL_NAME)
+embedding_model = TextEmbedding(model_name=settings.EMBEDDING_MODEL_NAME, threads = 1)
 
 def generate_embedding(text: str) -> list[float]:
     """

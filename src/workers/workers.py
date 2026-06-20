@@ -1,5 +1,6 @@
 from celery import Celery
 from config.settings import settings
+from celery.schedules import crontab
 
 celery_app = Celery(
     "graphrag_tasks",
@@ -17,3 +18,10 @@ celery_app.conf.update(
     worker_prefetch_multiplier=1, 
     task_acks_late=True           
 )
+
+celery_app.conf.beat_schedule = {
+    'purge-qdrant-graveyard-every-hour': {
+        'task': 'sweep_orphaned_vectors',
+        'schedule': crontab(minute=0), # Executes at the top of every hour
+    },
+}
