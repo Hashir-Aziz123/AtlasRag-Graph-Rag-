@@ -31,3 +31,8 @@ pytest-asyncio==0.20.3
 instructor
 groq
 fastembed
+
+# --- OCR and PDF Processing ---
+unstructured[local-inference]
+pdf2image
+tiktoken

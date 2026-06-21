@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Integer, JSON
+from sqlalchemy import Column, String, Text, DateTime, ForeignKey, JSON
 from sqlalchemy.orm import relationship as sa_relationship
 from src.core.database import Base
 
@@ -14,7 +14,8 @@ class Document(Base):
     filename = Column(String, nullable=False)
     content_hash = Column(String, unique=True, nullable=False)
     metadata_json = Column(JSON, default={})
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    # Explicitly enable timezone support
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     chunks = sa_relationship("Chunk", back_populates="document", cascade="all, delete-orphan")
     jobs = sa_relationship("IngestionJob", back_populates="document", cascade="all, delete-orphan")
@@ -25,7 +26,7 @@ class Chunk(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     document_id = Column(String, ForeignKey("documents.id", ondelete="CASCADE"))
     text_content = Column(Text, nullable=False)
-    page_number = Column(Integer, nullable=True)
+    page_numbers = Column(JSON, nullable=True)
     section_name = Column(String, nullable=True)
 
     document = sa_relationship("Document", back_populates="chunks")
@@ -37,7 +38,8 @@ class IngestionJob(Base):
     document_id = Column(String, ForeignKey("documents.id", ondelete="CASCADE"))
     status = Column(String, default="PENDING")
     error_message = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    completed_at = Column(DateTime, nullable=True)
+    # Explicitly enable timezone support
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    completed_at = Column(DateTime(timezone=True), nullable=True)
 
     document = sa_relationship("Document", back_populates="jobs")

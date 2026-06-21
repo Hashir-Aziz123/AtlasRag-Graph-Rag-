@@ -1,7 +1,7 @@
 import os
 import shutil
 from pathlib import Path
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, status
+from fastapi import APIRouter, UploadFile, File, HTTPException, status
 from celery.result import AsyncResult
 
 from config.settings import settings
@@ -12,11 +12,10 @@ from src.models.api_schemas import TaskStatusResponse
 router = APIRouter()
 
 @router.post("/", status_code=status.HTTP_202_ACCEPTED)
-async def upload_document(
-    file: UploadFile = File(...),
-    start_page: int = Form(0),
-    end_page: int = Form(None)
-):
+async def upload_document(file: UploadFile = File(...)):
+    """
+    Accepts a PDF document and dispatches it to the asynchronous parsing queue.
+    """
     if not file.filename.endswith('.pdf'):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
 
@@ -30,13 +29,16 @@ async def upload_document(
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
     finally:
         file.file.close()
-    task = process_pdf_task.delay(str(file_path), start_page, end_page)
+        
+    task = process_pdf_task.delay(str(file_path))
 
     return {"message": "Document accepted for processing", "task_id": task.id}
 
-
 @router.get("/status/{task_id}", response_model=TaskStatusResponse)
 async def get_task_status(task_id: str):
+    """
+    Polls the Celery backend for the current status of an ingestion job.
+    """
     task_result = AsyncResult(task_id, app=celery_app)
     
     response = {

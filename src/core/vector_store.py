@@ -1,11 +1,10 @@
 from qdrant_client.models import Distance, VectorParams, PointStruct
-import uuid
+from typing import Dict, Any
 
 from config.settings import settings
 from src.core.vector import qdrant_client
 
 async def init_qdrant_collection():
-    """Checks if the collection exists, and creates it if it doesn't."""
     collections_response = await qdrant_client.get_collections()
     existing_collections = [c.name for c in collections_response.collections]
     
@@ -19,21 +18,20 @@ async def init_qdrant_collection():
             ),
         )
 
-async def write_to_qdrant(text_chunk: str, vector: list[float], chunk_index: int, document_name: str):
+async def write_to_qdrant(chunk_id: str, vector: list[float], metadata: Dict[str, Any]):
     """
-    Takes a pre-computed vector and pushes it to Qdrant 
-    along with the raw text as the metadata payload.
+    Pushes a vector to Qdrant utilizing the Pointer Strategy.
+    The point ID matches the PostgreSQL Chunk UUID exactly, allowing fast O(1) text retrieval.
+    Raw text is explicitly omitted from the payload to conserve RAM.
     """
-    point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{document_name}_chunk_{chunk_index}"))
+    payload = {
+        **metadata
+    }
     
     point = PointStruct(
-        id=point_id,
+        id=chunk_id,  # Directly map to PostgreSQL UUID
         vector=vector,
-        payload={
-            "document": document_name,
-            "chunk_index": chunk_index,
-            "text": text_chunk
-        }
+        payload=payload
     )
     
     await qdrant_client.upsert(

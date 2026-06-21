@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     GRAPH_RETURN_LIMIT: int = 15
     VECTOR_RETURN_LIMIT: int = 4
 
+    # LLM Settings
+    GROQ_API_KEY: str
+    GROQ_MODEL_NAME: str = "llama-3.1-8b-instant"
+
 
     # Application Paths
     ROOT_DIR: Path = BASE_DIR
