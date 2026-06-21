@@ -10,7 +10,7 @@ from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_excep
 from src.workers.workers import celery_app
 from src.services.ingestion.parser import parse_pdf
 from src.services.ingestion.chunker import StructuredChunker
-from src.services.extraction.extractor import extract_graph_entities
+from src.services.ingestion.extractor import extract_graph_entities
 from src.services.ingestion.graph_writer import write_to_neo4j
 from src.services.ingestion.sql_writer import check_document_exists, write_chunks_to_sql
 from src.core.embedder import generate_embedding
