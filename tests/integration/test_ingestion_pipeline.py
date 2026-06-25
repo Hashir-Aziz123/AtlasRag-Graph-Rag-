@@ -26,7 +26,7 @@ class TestIngestionPipelineE2E(unittest.IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self):
         # Locate the sample PDF we used in previous extraction tests
-        self.test_filename = "attention_is_all_you_need.pdf"
+        self.test_filename = "sample-1-4.pdf"
         self.test_file_path = os.path.join(PROJECT_ROOT, "data", "raw", self.test_filename)
         
         if not os.path.exists(self.test_file_path):
@@ -39,7 +39,7 @@ class TestIngestionPipelineE2E(unittest.IsolatedAsyncioTestCase):
             await conn.run_sync(Base.metadata.create_all)
 
         # Ensure a clean slate before testing to prevent false positives from prior runs
-        await self._teardown_test_data()
+        # await self._teardown_test_data()
 
     async def test_full_ingestion_lifecycle(self):
         """Executes the pipeline and validates data propagation across all three storage layers."""

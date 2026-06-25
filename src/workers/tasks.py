@@ -16,6 +16,7 @@ from src.services.ingestion.sql_writer import check_document_exists, write_chunk
 from src.core.embedder import generate_embedding
 from src.core.vector_store import init_qdrant_collection, write_to_qdrant
 from src.core.vector import qdrant_client
+from src.core.graph import init_neo4j_schema
 from qdrant_client.models import Filter, FieldCondition, Range
 
 logger = logging.getLogger(__name__)
@@ -69,7 +70,9 @@ async def async_ingestion_pipeline(file_path: str):
     
     sql_chunks = await write_chunks_to_sql(file_path, parsed_chunks)
     
+    # Initialize Databases before concurrent writes
     await init_qdrant_collection()
+    await init_neo4j_schema()
     
     # Throttle concurrency. If using Groq free tier, this MUST be 1.
     semaphore = asyncio.Semaphore(1)

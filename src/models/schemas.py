@@ -50,3 +50,7 @@ class ParsedQuery(BaseModel):
         default_factory=list,
         description="Specific companies, products, or technologies mentioned. Capitalize canonical names (e.g., NVIDIA, Mellanox)."
     )
+    target_document: Optional[str] = Field(
+        default=None,
+        description="Specific document names, reports, or timeframes mentioned (e.g., 'Q3 Report', '2023 10-K'). Leave null if no specific document is requested."
+    )

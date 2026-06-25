@@ -20,6 +20,7 @@ async def extract_graph_entities(text_chunk: str) -> GraphExtraction:
     2. ACQUISITIONS: If one company buys, acquires, or merges with another, use the `ACQUIRED` relation type. Do NOT use `COMPETES_WITH` for acquisitions.
     3. INFRASTRUCTURE & PRODUCTS: Tools, software suites, or hardware architectures (e.g., Blackboard, Omniverse) must be categorized as `Product` or `Technology`.
     4. RELATION VALIDITY: Ensure relation_type adheres perfectly to the allowed Pydantic literal strings.
+    5. TERMINATION CONDITION: Extract ONLY explicitly stated facts. Do not infer hidden connections. Limit yourself to a maximum of 15 high-value relationships. Once the primary entities are extracted, CLOSE THE JSON AND STOP GENERATING. Do not repeat entities.
     """
 
     extracted_data = await client.chat.completions.create(
@@ -29,7 +30,8 @@ async def extract_graph_entities(text_chunk: str) -> GraphExtraction:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": f"Extract graph data from this text:\n\n{text_chunk}"}
         ],
-        temperature=0.0
+        temperature=0.0,
+        max_tokens=4000
     )
 
     return extracted_data
