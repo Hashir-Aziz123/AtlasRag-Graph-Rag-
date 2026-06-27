@@ -9,7 +9,7 @@ const generateId = (): string => {
         : Math.random().toString(36).substring(2, 15);
 };
 
-export const useChat = () => {
+export const useChatSession = () => {
     const [messages, setMessages] = useState<Message[]>([]);
 
     const chatMutation = useMutation({
