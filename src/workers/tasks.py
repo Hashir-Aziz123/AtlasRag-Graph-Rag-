@@ -21,8 +21,20 @@ from qdrant_client.models import Filter, FieldCondition, Range
 
 logger = logging.getLogger(__name__)
 
-# Configured to handle API rate limits gracefully.
-# Multiplier 2, Min 10s, Max 300s (5 mins) gives the API time to recover its token bucket.
+# --- THE ASYNC FIX ---
+# We must maintain a persistent event loop for the Celery worker process.
+# Calling asyncio.run() creates and destroys a loop every time. This orphans the 
+# underlying asyncio tasks that global DB connection pools (SQLAlchemy, Neo4j, Qdrant) 
+# rely on, leading to the dreaded "'NoneType' object has no attribute 'send'" greenlet crash.
+_worker_loop = None
+
+def get_worker_loop():
+    global _worker_loop
+    if _worker_loop is None or _worker_loop.is_closed():
+        _worker_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(_worker_loop)
+    return _worker_loop
+
 @retry(
     wait=wait_exponential(multiplier=2, min=10, max=300),
     stop=stop_after_attempt(7),
@@ -97,9 +109,12 @@ def process_pdf_task(self, file_path: str):
         return {"status": "error", "message": f"File not found: {file_path}"}
         
     try:
-        result = asyncio.run(async_ingestion_pipeline(file_path))
+        # Utilize the persistent loop instead of asyncio.run()
+        loop = get_worker_loop()
+        result = loop.run_until_complete(async_ingestion_pipeline(file_path))
         return {"status": "success", "message": result}
     except Exception as e:
+        logger.error(f"Ingestion pipeline failed: {e}", exc_info=True)
         return {"status": "error", "message": str(e)}
 
 async def async_sweep_vectors():
@@ -124,4 +139,9 @@ async def async_sweep_vectors():
 
 @celery_app.task(name="sweep_orphaned_vectors")
 def sweep_orphaned_vectors_task():
-    asyncio.run(async_sweep_vectors())
+    try:
+        # Apply the persistent loop here as well
+        loop = get_worker_loop()
+        loop.run_until_complete(async_sweep_vectors())
+    except Exception as e:
+        logger.error(f"Vector sweep failed: {e}", exc_info=True)

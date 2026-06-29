@@ -9,6 +9,10 @@ from src.workers.workers import celery_app
 from src.workers.tasks import process_pdf_task
 from src.models.api_schemas import TaskStatusResponse
 
+from sqlalchemy.future import select
+from src.core.database import async_session_maker
+from src.models.relational import Document
+
 router = APIRouter()
 
 @router.post("/", status_code=status.HTTP_202_ACCEPTED)
@@ -53,3 +57,27 @@ async def get_task_status(task_id: str):
             response["result"] = str(task_result.info)
             
     return response
+
+
+
+@router.get("/documents")
+async def list_documents():
+    """
+    Fetches the history of successfully ingested documents from PostgreSQL.
+    Used by the frontend dashboard to display the active knowledge base.
+    """
+    async with async_session_maker() as session:
+        # Fetch documents ordered by most recent first
+        query = select(Document).order_by(Document.created_at.desc())
+        result = await session.execute(query)
+        documents = result.scalars().all()
+
+        return [
+            {
+                "id": doc.id,
+                "filename": doc.filename,
+                "chunk_count": doc.metadata_json.get("chunk_count", 0) if doc.metadata_json else 0,
+                "created_at": doc.created_at.isoformat() if doc.created_at else None
+            }
+            for doc in documents
+        ]
